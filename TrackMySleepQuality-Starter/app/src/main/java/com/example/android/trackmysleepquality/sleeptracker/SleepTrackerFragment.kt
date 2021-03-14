@@ -22,10 +22,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.android.trackmysleepquality.R
 import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * A fragment with buttons to record start and end times for sleep, which are saved in
@@ -54,6 +57,29 @@ class SleepTrackerFragment : Fragment() {
 
 		// Get a reference to the ViewModel associated with this fragment
 		val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+
+		/**
+		 * UI that navigates to Quality fragment upon state changes
+		 */
+		sleepTrackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner, Observer {
+			night ->
+			night?.let {
+				this.findNavController().navigate(
+						SleepTrackerFragmentDirections.actionSleepTrackerFragmentToSleepQualityFragment(night.nightId)
+				)
+				sleepTrackerViewModel.doneNavigating()
+			}
+		})
+		sleepTrackerViewModel.showSnackBarEvent.observe(viewLifecycleOwner, Observer {
+			if (it == true) {
+				Snackbar.make(
+						requireActivity().findViewById(android.R.id.content),
+						getString(R.string.cleared_message),
+						Snackbar.LENGTH_SHORT
+				).show()
+				sleepTrackerViewModel.doneShowingSnackBar()
+			}
+		})
 
 		// Set binding
 		binding.lifecycleOwner = this
