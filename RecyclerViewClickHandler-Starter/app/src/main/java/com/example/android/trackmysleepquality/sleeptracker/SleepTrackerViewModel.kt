@@ -204,4 +204,19 @@ class SleepTrackerViewModel(
             _showSnackbarEvent.value = true
         }
     }
+
+	/**
+	 * ClickListener Logic
+	 */
+	private val _navigateToSleepDetail = MutableLiveData<Long>()
+	val navigateToSleepDetail
+		get() = _navigateToSleepDetail
+
+	fun onSleepNightClicked(id: Long) {
+		_navigateToSleepDetail.value = id
+	}
+
+	fun onSleepDetailNavigated() {
+		_navigateToSleepDetail.value = null
+	}
 }

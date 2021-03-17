@@ -37,21 +37,13 @@ class SleepDetailViewModel(
         private val sleepNightKey: Long = 0L,
         dataSource: SleepDatabaseDao) : ViewModel() {
 
-    /**
-     * Hold a reference to SleepDatabase via its SleepDatabaseDao.
-     */
     val database = dataSource
+    private val night: LiveData<SleepNight> = database.getNightWithId(sleepNightKey)
 
-    private val night: LiveData<SleepNight>
-
-    fun getNight() = night
+	fun getNight() = night
 
 
-    init {
-        night=database.getNightWithId(sleepNightKey)
-    }
-
-    /**
+	/**
      * Variable that tells the fragment whether it should navigate to [SleepTrackerFragment].
      *
      * This is `private` because we don't want to expose the ability to set [MutableLiveData] to
