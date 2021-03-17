@@ -57,7 +57,9 @@ class SleepTrackerFragment : Fragment() {
 		binding.lifecycleOwner = this
 
 
-		// ViewModel
+		/**
+		 * ViewModel
+		 */
         val application = requireNotNull(this.activity).application
         val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao
         val viewModelFactory = SleepTrackerViewModelFactory(dataSource, application)
@@ -67,8 +69,17 @@ class SleepTrackerFragment : Fragment() {
         binding.sleepTrackerViewModel = sleepTrackerViewModel
 
 
-		// RecyclerView Adapter (ClickListener, Data Update)
+		/**
+		 * RecyclerView Adapter (ClickListener, Data Update)
+		 */
 		val manager = GridLayoutManager(activity, 3)
+		// Custom span for header and others
+		manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+			override fun getSpanSize(position: Int) = when (position) {
+				0 -> 3
+				else -> 1
+			}
+		}
 		binding.sleepList.layoutManager = manager
         val adapter = SleepNightAdapter(SleepNightListener { nightId ->
 			sleepTrackerViewModel.onSleepNightClicked(nightId)
@@ -84,13 +95,12 @@ class SleepTrackerFragment : Fragment() {
         binding.sleepList.adapter = adapter
         sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.submitList(it)
+                adapter.addHeaderAndSubmitList(it)
             }
         })
 
 
-
-		// -> SleepQuality
+		// Navigate to SleepQuality
         sleepTrackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner, Observer { night ->
             night?.let {
                 this.findNavController().navigate(
